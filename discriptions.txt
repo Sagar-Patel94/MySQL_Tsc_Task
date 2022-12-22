@@ -3,3 +3,5 @@ npm install typescript --save-dev
 npm install @types/node --save-dev
 npx tsc --init
 cat ~/.ssh/id_rsa.pub
+git config --global user.email "s.m.gajera.sg@gmail.com"
+git config --global user.name "Sagar-Patel94"
