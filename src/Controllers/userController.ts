@@ -1,8 +1,10 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
-import userModel from "../Models/Users";
+import userModel from "../Models/users";
 import otpModel from "../Models/forgotPassReq";
+import docModel from "../Models/userDocuments";
 
 export default class userController {
   static register = async (req: Request, res: Response) => {
@@ -35,7 +37,7 @@ export default class userController {
   };
 
   static login = async (req: Request, res: Response) => {
-    let response: any;
+    let response: any, token: any;
     try {
       await userModel
         .findOne({
@@ -62,10 +64,19 @@ export default class userController {
               .compare(req.body.password, hashPassword)
               .then((result) => {
                 if (result) {
+                  token = jwt.sign(
+                    {
+                      Id: data.Id,
+                      UserId: data.UserId,
+                    },
+                    "secret",
+                    { expiresIn: "23h" }
+                  );
                   response = {
                     Message: "Login successfull",
                     Status: 200,
                     Data: data,
+                    Token: token,
                   };
                 } else {
                   response = {
@@ -106,7 +117,7 @@ export default class userController {
     }
   };
 
-  static forgotpasswordOTP = async (req: Request, res: Response) => {
+  static forgotPasswordOTP = async (req: Request, res: Response) => {
     let response;
     try {
       await userModel
@@ -154,6 +165,60 @@ export default class userController {
         Data: null,
       };
       res.status(400).json(response);
+    }
+  };
+
+  static allUsers = async (req: Request, res: Response) => {
+    let response;
+    try {
+      let isAdmin: any = res.locals;
+      if (isAdmin === true) {
+        let allUsers = await userModel.findAll();
+        response = {
+          Message: "Users successfully fetched",
+          Status: 200,
+          Data: allUsers,
+        };
+      } else {
+        response = {
+          Message: "You are not authorized user",
+        };
+      }
+      res.status(200).json(response);
+    } catch (error: any) {
+      response = {
+        Message: error.message,
+        Status: 400,
+        Data: null,
+      };
+      res.status(400).json(response);
+    }
+  };
+
+  static createDoc = async (req: Request, res: Response) => {
+    let response;
+    try {
+      const userData = await userModel.findOne({
+        where: { UserId: req.params.userId },
+      });
+      if (userData?.dataValues) {
+        const documents = await docModel.create({
+          UserId: req.params.userId,
+          Name: userData.Name,
+        });
+        response = {
+          Message: "Document successfully created",
+          Status: 200,
+          Data: documents,
+        };
+      } else {
+        response = {
+          Message: "Invalid UserId",
+        };
+      }
+      res.status(200).json(response);
+    } catch (error: any) {
+      res.status(200).json({ Error: error.message });
     }
   };
 }

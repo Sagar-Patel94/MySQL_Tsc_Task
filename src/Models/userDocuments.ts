@@ -1,24 +1,28 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../DbConnection/dbConnection";
 
-class otp extends Model {
+class userDocuments extends Model {
   Id: any;
   UserId: any;
-  OTP: any;
+  DocumentId: any;
+  Name: any;
 }
 
-otp.init(
+userDocuments.init(
   {
     Id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
-    RequestId: {
+    UserId: {
       type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
     },
-    OTP: {
+    DocumentId: {
+      type: DataTypes.STRING,
+      defaultValue: "NA",
+    },
+    Name: {
       type: DataTypes.STRING,
     },
   },
@@ -27,8 +31,8 @@ otp.init(
     updatedAt: "Updated Time",
     timestamps: true,
     sequelize: sequelize,
-    modelName: "forgotPassReq",
+    modelName: "userDocuments",
   }
 );
 
-export default otp;
+export default userDocuments;

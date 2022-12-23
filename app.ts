@@ -12,6 +12,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use("/auth", userRoute);
+app.use("/users", userRoute);
 
 const port = process.env.PORT;
 
